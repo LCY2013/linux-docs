@@ -943,8 +943,21 @@ eg:
 ### 软件包管理
 
 ```markdown
-
-
+通过yum资源库搜索emacs: yum search emacs
+通过apt资源库安装emacs: apt-get update; apt-get install emacs
+通过rpm包安装emacs: rpm -i emacs-22.1-7.fc7-i386.rpm
+通过apt删除emacs: apt-get remove emacs
+通过apt更新: apt-get update或者apt-get upgrade
+通过rpm包升级应用: rpm -U emacs-22.1-7.fc7-i386.rpm
+列出所安装的软件包命令:
+风格           命令
+Debian     dpkg --list
+Red Hat    rpm -qa
+查看软件包信息命令:
+风格								命令
+Debian					apt-cache show package_name
+Red Hat					yum info package_name
+查看那个软件包安装了/usr/bin/vim: rpm -qf /usr/bin/vim
 ```
 
 | 包管理系统           | 发行版 (部分列表)                                            |
@@ -952,19 +965,62 @@ eg:
 | Debian Style (.deb)  | Debian, Ubuntu, Xandros, Linspire                            |
 | Red Hat Style (.rpm) | Fedora, CentOS, Red Hat Enterprise Linux, OpenSUSE, Mandriva, PCLinuxOS |
 
+| 发行版                                   | 底层工具 | 上层工具          |
+| :--------------------------------------- | :------- | :---------------- |
+| Debian-Style                             | dpkg     | apt-get, aptitude |
+| Fedora, Red Hat Enterprise Linux, CentOS | rpm      | yum               |
+
+| 风格    | 命令                                           |
+| :------ | :--------------------------------------------- |
+| Debian  | apt-get update; apt-cache search search_string |
+| Red Hat | yum search search_string                       |
+
+| 风格    | 命令                        |
+| :------ | :-------------------------- |
+| Debian  | dpkg --install package_file |
+| Red Hat | rpm -i package_file         |
+
+| 风格    | 命令                        |
+| :------ | :-------------------------- |
+| Debian  | apt-get remove package_name |
+| Red Hat | yum erase package_name      |
+
+| 风格    | 命令                            |
+| :------ | :------------------------------ |
+| Debian  | apt-get update; apt-get upgrade |
+| Red Hat | yum update                      |
+
+| 风格    | 命令                        |
+| :------ | :-------------------------- |
+| Debian  | dpkg --install package_file |
+| Red Hat | rpm -U package_file         |
+
+| 风格    | 命令                       |
+| :------ | :------------------------- |
+| Debian  | dpkg --status package_name |
+| Red Hat | rpm -q package_name        |
+
+| 风格    | 命令                    |
+| :------ | :---------------------- |
+| Debian  | dpkg --search file_name |
+| Red Hat | rpm -qf file_name       |
+
+### 存储媒介
+
+```shell
+mount – 挂载一个文件系统
+umount – 卸载一个文件系统
+fsck – 检查和修复一个文件系统
+fdisk – 分区表控制器
+mkfs – 创建文件系统
+fdformat – 格式化一张软盘
+dd — 把面向块的数据直接写入设备
+genisoimage (mkisofs) – 创建一个 ISO 9660的映像文件
+wodim (cdrecord) – 把数据写入光存储媒介
+md5sum – 计算 MD5检验码
 
 
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
