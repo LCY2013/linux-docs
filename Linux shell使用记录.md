@@ -1019,7 +1019,21 @@ genisoimage (mkisofs) – 创建一个 ISO 9660的映像文件
 wodim (cdrecord) – 把数据写入光存储媒介
 md5sum – 计算 MD5检验码
 
-
+eg:
+# mount  查看所有的挂在点情况
+/dev/mapper/VolGroup00-LogVol00 on / type ext3 (rw)
+....
+/dev/hdc on /media/live-1.0.10-8 type iso9660 (ro,noexec,nosuid,nodev,uid=500)
+# umount /dev/hdc  卸载掉自己挂载的软盘
+# mkdir /mnt/cdrom  新建一个软盘挂载目录
+# mount -t iso9660 /dev/hdc /mnt/cdrom 将软盘内容挂载到自定义目录
+# cd /mnt/cdrom 进入挂载点
+# ls -l 查看挂载点所有的信息
+# unmount /dev/hdc 试图卸载挂载点，失败(因为目前所在的目录是挂载点目录，需要先退出挂载点)
+# cd 进入当前用户的目录
+# unmount /dev/hdc  这时在卸载挂载点
+# ls /dev 查看系统命名的设备
+# tail -f /var/log/messages 查看系统日志
 ```
 
 | 字段 | 内容                           | 说明                                                         |
@@ -1031,7 +1045,13 @@ md5sum – 计算 MD5检验码
 | 5    | 频率(Frequency)                | 一位数字，指定是否和在什么时间用 dump 命令来备份一个文件系统。 |
 | 6    | 次序(Order)                    | 一位数字，指定 fsck 命令按照什么次序来检查文件系统。         |
 
-
+| 模式     | 设备                                                         |
+| :------- | :----------------------------------------------------------- |
+| /dev/fd* | 软盘驱动器                                                   |
+| /dev/hd* | 老系统中的 IDE(PATA)磁盘。典型的主板包含两个 IDE 连接器或者是通道，每个连接器 带有一根缆线，每根缆线上有两个硬盘驱动器连接点。缆线上的第一个驱动器叫做主设备， 第二个叫做从设备。设备名称这样安排，/dev/hda 是指第一通道上的主设备名；/dev/hdb 是第一通道上的从设备名；/dev/hdc 是第二通道上的主设备名，等等。末尾的数字表示 硬盘驱动器上的分区。例如，/dev/hda1是指系统中第一硬盘驱动器上的第一个分区，而 /dev/hda 则是指整个硬盘驱动器。 |
+| /dev/lp* | 打印机                                                       |
+| /dev/sd* | SCSI 磁盘。在最近的 Linux 系统中，内核把所有类似于磁盘的设备（包括 PATA/SATA 硬盘， 闪存，和 USB 存储设备，比如说可移动的音乐播放器和数码相机）看作 SCSI 磁盘。 剩下的命名系统类似于上述所描述的旧的/dev/hd*命名方案。 |
+| /dev/sr* | 光盘（CD/DVD 读取器和烧写器）                                |
 
 
 
