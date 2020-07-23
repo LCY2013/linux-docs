@@ -1244,6 +1244,96 @@ find AND/OR逻辑
 | -mount           | 指示 find 程序不要搜索挂载到其它文件系统上的目录。           |
 | -noleaf          | 指示 find 程序不要基于自己在搜索 Unix 的文件系统的假设，来优化它的搜索。 在搜索DOS/Windows 文件系统和CD/ROMS的时候，我们需要这个选项 |
 
+### 归档和备份
+
+```shell
+gzip – 压缩或者展开文件
+gzip magic.txt 压缩文本magic.txt -> magic.txt.gz
+gunzip magic.txt.gz 解压magic.txt.gz -> magic.txt
+gzip -tv magic.txt.gz  测试压缩完整性和显示压缩过程信息
+gzip -d magic.txt.gz 解压缩
+
+zcat 一个类似于gunzip
+zless 一个类似于less
+
+bzip2 – 块排序文件压缩器
+bzip2 foo.txt  压缩foo.txt文件
+bunzip2 foo.txt.bz2  解压foo.txt.bz2文件
+bcat 类似于bunzip2
+
+tar – 磁带打包工具
+
+zip – 打包和压缩文件
+
+rsync – 同步远端文件和目录
+	rsync options source destination
+	rsync -av playground foo
+
+eg:
+# ls -l /etc | gzip > foo.txt.gz  创建了一个目录列表的压缩文件
+# gunzip foo.txt.gz  解压一个目录列表的压缩文件
+# gzip foo.txt 再次压缩文件foo.txt
+# gunzip -c foo.txt.gz | less 浏览压缩文件foo.txt.gz的信息
+# zcat -c foo.txt.gz | less 等价于上一条命令
+# mkdir -p playground/dir-{00{1..9},0{10..99},100}
+# touch playground/dir-{00{1..9},0{10..99},100}/file-{A..Z}
+# tar cf playground.tar playground   将文件夹归档
+# tar tf playground.tar 列出规定的内容
+# tar tvf playground.tar 列出详细的列表信息
+# mkdir foo
+# cd foo
+# tar xf ../playground.tar
+# ls 
+# cd ..
+# mkdir playground2
+# tar cf playground.tar ./playground2
+# tar tf playground.tar
+# tar xf playground.tar --wildcards 'playground/dir-*/file-A'
+# find playground -name 'file-A' -exec tar rf playground.tar '{}' '+'
+# find playground -name 'file-A' | tar cf - --files-from=- | gzip > playground.tgz
+# find playground -name 'file-A' | tar czf playground.tgz -T -
+# find playground -name 'file-A' | tar cjf playground.tbz -T -
+# ssh user@IP 'tar cf - vi' | tar xf - 将远端某个目录压缩传递到本地
+# zip -r playground.zip playground 压缩目录playground
+# unzip playground.zip 解压压缩文件playground.zip
+# unzip playground.zip playground/dir-001/file-A
+# unzip -l playground.zip playground/dir-001/file-A 使用-l 选项，导致 unzip 命令只是列出文件包中的内容而没有抽取文件。
+# find playground -name "file-A" | zip -@ file-A.zip zip 命令能够利用标准输入和输出，虽然它的实施不大有用。通过-@选项，有可能把一系列的 文件名管道到 zip 命令。
+# ls -l /etc/ | zip ls-etc.zip - 
+# rsync -av playground foo
+# touch  playground/dir-002/file-L
+# rsync -av playground foo
+# mkdir /media/BigDisk/backup
+# rsync -av --delete /etc /home /usr/local /media/BigDisk/backup  我们包含了–delete 这个选项，来删除可能在备份设备中已经存在但却不再存在于源设备中的文件， （这与我们第一次创建备份无关，但是会在随后的复制操作中有用途）。
+# alias backup='sudo rsync -av --delete /etc /home /usr/local /media/BigDisk/backup' 定义备份盘的别名
+# rsync -av --delete --rsh=ssh /etc /home /usr/local remote-sys:/backup rsync 程序的真正好处之一，是它可以被用来在网络间复制文件。毕竟，rsync 中的“r”象征着“remote”。 远程复制可以通过两种方法完成。第一个方法要求另一个系统已经安装了 rsync 程序，还安装了 远程 shell 程序，比如 ssh。
+# mkdir fedora-devel
+# rsync -av -delete rsync://rsync.gtlib.gatech.edu/fedora-linux- core/development/i386/os fedora-devel
+```
+
+gzip选项
+
+| 选项    | 说明                                                         |
+| :------ | :----------------------------------------------------------- |
+| -c      | 把输出写入到标准输出，并且保留原始文件。也有可能用--stdout 和--to-stdout 选项来指定。 |
+| -d      | 解压缩。正如 gunzip 命令一样。也可以用--decompress 或者--uncompress 选项来指定. |
+| -f      | 强制压缩，即使原始文件的压缩文件已经存在了，也要执行。也可以用--force 选项来指定。 |
+| -h      | 显示用法信息。也可用--help 选项来指定。                      |
+| -l      | 列出每个被压缩文件的压缩数据。也可用--list 选项。            |
+| -r      | 若命令的一个或多个参数是目录，则递归地压缩目录中的文件。也可用--recursive 选项来指定。 |
+| -t      | 测试压缩文件的完整性。也可用--test 选项来指定。              |
+| -v      | 显示压缩过程中的信息。也可用--verbose 选项来指定。           |
+| -number | 设置压缩指数。number 是一个在1（最快，最小压缩）到9（最慢，最大压缩）之间的整数。 数值1和9也可以各自用--fast 和--best 选项来表示。默认值是整数6。 |
+
+tar模式
+
+| 模式 | 说明                               |
+| :--- | :--------------------------------- |
+| c    | 为文件和／或目录列表创建归档文件。 |
+| x    | 抽取归档文件。                     |
+| r    | 追加具体的路径到归档文件的末尾。   |
+| t    | 列出归档文件的内容。               |
+
 
 
 
