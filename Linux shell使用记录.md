@@ -1055,7 +1055,60 @@ eg:
 
 
 
+### 网络系统
 
+```shell
+ping - 发送 ICMP ECHO_REQUEST 数据包到网络主机
+ping www.baidu.com
+
+traceroute - 打印到一台网络主机的路由数据包
+traceroute www.baidu.com
+
+netstat - 打印网络连接，路由表，接口统计数据，伪装连接，和多路广播成员
+netstat -ie 使用"-ie"选项，我们能够查看系统中的网络接口第一个，叫做 eth0，是以太网接口，和第二个，叫做 lo，是内部回环网络接口，它是一个虚拟接口，系统用它来"自言自语"。
+netstat -r "-r"选项会显示内核的网络路由表。
+
+ftp - 因特网文件传输程序
+ftp fileserver  
+lftp - 更好的 ftp
+
+wget - 非交互式网络下载器
+wget http://linuxcommand.org/index.php
+
+ssh - OpenSSH SSH 客户端（远程登录程序）
+ssh user@IP  登陆某个终端
+ssh IP 验证主机的正确性
+ssh user@IP free  连接IP执行某条指令
+ssh user@IP 'ls \*' > dirlist.txt  展示连接的某个用户目录下的所有信息
+ssh -X user@IP 远端系统中 运行 xload 程序，但是要在我们的本地系统中看到这个程序的图形化输出。在某些系统中，你可能需要 使用 “－Y” 选项，而不是 “－X” 选项来完成这个操作。
+
+scp 和 sftp
+scp user@IP:/something .  复制远程主机下的something到本地当前目录
+scp something user@IP:~/  复制本地something到远程user目录下
+sftp root@192.168.99.120 
+
+网络协议概念:
+  IP (Internet Protocol) address
+  IP (网络协议)地址
+  Host and domain name
+  主机和域名
+  URI (Uniform Resource Identifier)
+  URI（统一资源标识符）
+  
+
+```
+
+ftp 一些指令展示
+
+| 命令                             | 意思                                                         |
+| :------------------------------- | :----------------------------------------------------------- |
+| ftp fileserver                   | 唤醒 ftp 程序，让它连接到 FTP 服务器，fileserver。           |
+| anonymous                        | 登录名。输入登录名后，将出现一个密码提示。一些服务器将会接受空密码， 其它一些则会要求一个邮件地址形式的密码。如果是这种情况，试着输入 “user@example.com”。 |
+| cd pub/cd_images/Ubuntu-8.04     | 跳转到远端系统中，要下载文件所在的目录下， 注意在大多数匿名的 FTP 服务器中，支持公共下载的文件都能在目录 pub 下找到 |
+| ls                               | 列出远端系统中的目录。                                       |
+| lcd Desktop                      | 跳转到本地系统中的 ~/Desktop 目录下。在实例中，ftp 程序在工作目录 ~ 下被唤醒。 这个命令把工作目录改为 ~/Desktop |
+| get ubuntu-8.04-desktop-i386.iso | 告诉远端系统传送文件到本地。因为本地系统的工作目录 已经更改到了 ~/Desktop，所以文件会被下载到此目录。 |
+| bye                              | 退出远端服务器，结束 ftp 程序会话。也可以使用命令 quit 和 exit。 |
 
 
 
