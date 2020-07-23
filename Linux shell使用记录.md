@@ -1110,21 +1110,139 @@ ftp 一些指令展示
 | get ubuntu-8.04-desktop-i386.iso | 告诉远端系统传送文件到本地。因为本地系统的工作目录 已经更改到了 ~/Desktop，所以文件会被下载到此目录。 |
 | bye                              | 退出远端服务器，结束 ftp 程序会话。也可以使用命令 quit 和 exit。 |
 
+### 查找文件
 
+```shell
+locate – 通过名字来查找文件
+locate bin/zip
+locate zip | grep bin
 
+find – 在一个目录层次结构中搜索文件
+find . 查询当前目录下所有的信息
+find . -name magic.txt  查询当前目录下是否存在名称叫magic.txt的文件
+find . | wc -l 统计当前目录下的文件总数 wc -l 统计行
+find . -type d | wc -l 查询统计当前目录下文件夹的数量
+find . -type f | wc -l 统计文件类型为文件的数量
+find . -type f -name "*.JPG" -size +1M | wc -l 统计jpg格式大于1M的文件
+find . \( -type f -not -perm 0600 \) -or \( -type d -not -perm 0700 \)  查询文件类型是f权限不是0600或者类型是d权限不是0700的所有东西
+find . -print 等价于find .
+find ~ -type f -name '*.BAK' -delete 删除.BAK的文件
+find ~ -type f -name '*.BAK' -print  等价于 find ~ -type f -and -name '*.BAK' -and -print
+用户定义的行为
+	-exec command {} ;
+	-exec rm '{}' ';'
+	find ~ -type f -name 'foo*' -ok ls -l '{}' ';'
+	find ~ -type f -name 'foo*' -exec ls -l '{}' +
 
+xargs – 从标准输入生成和执行命令行
+find ~ -type f -name 'magic*' -print | xargs ls -l 
+find 命令提供的 -print0 行为， 则会产生由 null 字符分离的输出，并且 xargs 命令有一个 –null 选项，这个选项会接受由 null 字符 分离的输入。
+find ~ -iname ''*.jpg' -print0 xargs –null ls -l
 
+touch – 更改文件时间
 
+stat – 显示文件或文件系统状态
 
+eg:
+# mkdir -p playground/dir-{00{1..9},0{10..99},100}
+# touch playground/dir-{00{1..9},0{10..99},100}/file-{A..Z}
+# find playground -type f -name 'file-A'
+# find playground -type f -name 'file-A' | wc -l
+# touch playground/timestamp
+# stat playground/timestamp
+# find playground -type f -name 'file-B' -exec touch '{}' ';'
+# find playground -type f -newer playground/timestamp
+# find playground \( -type f -not -perm 0600 \) -or \( -type d -not -perm 0700 \)
+# find playground \( -type f -not -perm 0600 -exec chmod 0600 '{}' ';' \) -or \( -type d -not -perm 0711 -exec chmod 0700 '{}' ';' \)
 
+```
 
+find文件类型
 
+| 文件类型 | 描述             |
+| :------- | :--------------- |
+| b        | 块特殊设备文件   |
+| c        | 字符特殊设备文件 |
+| d        | 目录             |
+| f        | 普通文件         |
+| l        | 符号链接         |
 
+find 大小单位
 
+| 字符 | 单位                                           |
+| :--- | :--------------------------------------------- |
+| b    | 512 个字节块。如果没有指定单位，则这是默认值。 |
+| c    | 字节                                           |
+| w    | 两个字节的字                                   |
+| k    | 千字节(1024个字节单位)                         |
+| M    | 兆字节(1048576个字节单位)                      |
+| G    | 千兆字节(1073741824个字节单位)                 |
 
+find测试条件
 
+| 测试条件       | 描述                                                         |
+| :------------- | :----------------------------------------------------------- |
+| -cmin n        | 匹配内容或属性最后修改时间正好在 n 分钟之前的文件或目录。 指定少于 n 分钟之前，使用 -n，指定多于 n 分钟之前，使用 +n。 |
+| -cnewer file   | 匹配内容或属性最后修改时间晚于 file 的文件或目录。           |
+| -ctime n       | 匹配内容和属性最后修改时间在 n*24小时之前的文件和目录。      |
+| -empty         | 匹配空文件和目录。                                           |
+| -group name    | 匹配属于一个组的文件或目录。组可以用组名或组 ID 来表示。     |
+| -iname pattern | 就像-name 测试条件，但是不区分大小写。                       |
+| -inum n        | 匹配 inode 号是 n的文件。这对于找到某个特殊 inode 的所有硬链接很有帮助。 |
+| -mmin n        | 匹配内容被修改于 n 分钟之前的文件或目录。                    |
+| -mtime n       | 匹配的文件或目录的内容被修改于 n*24小时之前。                |
+| -name pattern  | 用指定的通配符模式匹配的文件和目录。                         |
+| -newer file    | 匹配内容晚于指定的文件的文件和目录。这在编写执行备份的 shell 脚本的时候很有帮。 每次你制作一个备份，更新文件（比如说日志），然后使用 find 命令来判断哪些文件自从上一次更新之后被更改了。 |
+| -nouser        | 匹配不属于一个有效用户的文件和目录。这可以用来查找 属于被删除的帐户的文件或监测攻击行为。 |
+| -nogroup       | 匹配不属于一个有效的组的文件和目录。                         |
+| -perm mode     | 匹配权限已经设置为指定的 mode的文件或目录。mode 可以用 八进制或符号表示法。 |
+| -samefile name | 类似于-inum 测试条件。匹配和文件 name 享有同样 inode 号的文件。 |
+| -size n        | 匹配大小为 n 的文件                                          |
+| -type c        | 匹配文件类型是 c 的文件。                                    |
+| -user name     | 匹配属于某个用户的文件或目录。这个用户可以通过用户名或用户 ID 来表示。 |
 
+find命令的逻辑操作符
 
+| 操作符 | 描述                                                         |
+| :----- | :----------------------------------------------------------- |
+| -and   | 如果操作符两边的测试条件都是真，则匹配。可以简写为 -a。 注意若没有使用操作符，则默认使用 -and。 |
+| -or    | 若操作符两边的任一个测试条件为真，则匹配。可以简写为 -o。    |
+| -not   | 若操作符后面的测试条件是假，则匹配。可以简写为一个感叹号（!）。 |
+| ()     | 把测试条件和操作符组合起来形成更大的表达式。这用来控制逻辑计算的优先级。 默认情况下，find 命令按照从左到右的顺序计算。经常有必要重写默认的求值顺序，以得到期望的结果。 即使没有必要，有时候包括组合起来的字符，对提高命令的可读性是很有帮助的。注意 因为圆括号字符对于 shell 来说有特殊含义，所以在命令行中使用它们的时候，它们必须 用引号引起来，才能作为实参传递给 find 命令。通常反斜杠字符被用来转义圆括号字符。 |
+
+find AND/OR逻辑 
+
+| expr1 的结果 | 操作符 | expr2 is... |
+| ------------ | ------ | ----------- |
+| 真           | -and   | 总要执行    |
+| 假           | -and   | 从不执行    |
+| 真           | -or    | 从不执行    |
+| 假           | -or    | 总要执行    |
+
+*几个预定义的 find 命令操作*
+
+| 操作    | 描述                                                         |
+| :------ | :----------------------------------------------------------- |
+| -delete | 删除当前匹配的文件。                                         |
+| -ls     | 对匹配的文件执行等同的 ls -dils 命令。并将结果发送到标准输出。 |
+| -print  | 把匹配文件的全路径名输送到标准输出。如果没有指定其它操作，这是 默认操作。 |
+| -quit   | 一旦找到一个匹配，退出。                                     |
+
+| 测试／行为    | 只有...的时候，才被执行                                |
+| ------------- | ------------------------------------------------------ |
+| -print        | 只有 -type f and -name '*.BAK'为真的时候               |
+| -name ‘*.BAK’ | 只有 -type f 为真的时候                                |
+| -type f       | 总是被执行，因为它是与 -and 关系中的第一个测试／行为。 |
+
+*find 命令选项*
+
+| 选项             | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| -depth           | 指示 find 程序先处理目录中的文件，再处理目录自身。当指定-delete 行为时，会自动 应用这个选项。 |
+| -maxdepth levels | 当执行测试条件和行为的时候，设置 find 程序陷入目录树的最大级别数 |
+| -mindepth levels | 在应用测试条件和行为之前，设置 find 程序陷入目录数的最小级别数。 |
+| -mount           | 指示 find 程序不要搜索挂载到其它文件系统上的目录。           |
+| -noleaf          | 指示 find 程序不要基于自己在搜索 Unix 的文件系统的假设，来优化它的搜索。 在搜索DOS/Windows 文件系统和CD/ROMS的时候，我们需要这个选项 |
 
 
 
