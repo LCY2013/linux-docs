@@ -1336,9 +1336,188 @@ tar模式
 
 
 
+### 正则表达式
 
+```shell
+grep (global regular expression print)
+grep [options] regex [file...]
+正则表达式元字符由以下字符组成：
+	^ $ . [ ] { } - ? * + ( ) | \
+. 代表任意字符
+锚点(^,$) 插入符号和美元符号被看作是锚点
 
+基本正则表达式（BRE）和扩展的正则表达式（ERE）
+BRE 和 ERE 之间有什么区别呢？这是关于元字符的问题。BRE 可以辨别以下元字符：
+^ $ . [ ] *
+其它的所有字符被认为是文本字符。ERE 添加了以下元字符（以及与其相关的功能）:
+( ) { } ? + |
 
+? - 匹配零个或一个元素
+(nnn) nnn-nnnn
+^\(?[0-9][0-9][0-9]\)?  [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$
+
+* - 匹配零个或多个元素
+[[:upper:]][[:upper:][:lower:] ]*.
+
++ - 匹配一个或多个元素
+^([[:alpha:]]+ ?)+$
++ 元字符的作用与 * 非常相似，除了它要求前面的元素至少出现一次匹配。这个正则表达式只匹配 那些由一个或多个字母字符组构成的文本行，字母字符之间由单个空格分开
+
+{ } - 匹配特定个数的元素
+{ and } 元字符都被用来表达要求匹配的最小和最大数目。
+^\(?[0-9][0-9][0-9]\)?  [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$
+简化为:
+^\(?[0-9]{3}\)?  [0-9]{3}-[0-9]{4}$
+
+创建一个电话簿命令:
+for i in {1..10}; do echo "(${RANDOM:0:3}) ${RANDOM:0:3}-${RANDOM:0:4}" >> phonelist.txt; done
+验证号码是否正确:
+grep -Ev '^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$'    phonelist.txt
+
+查找每个路径名，其包含的任意字符都不是以下字符集中的一员
+find . -regex '.*[^-\_./0-9a-zA-Z].*'
+
+通过 locate 命令，我们能够执行许多与先前操作 dirlist 文件时相同的操作
+locate --regex 'bin/(bz|gz|zip)'
+
+less 和 vim 两者享有相同的文本查找方法。按下/按键，然后输入正则表达式，来执行搜索任务。 如果我们使用 less 程序来浏览我们的 phonelist.txt 文件: grep phonelist.txt
+^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$
+
+ zgrep -El 'regex|regular expression' *.gz
+
+eg: 
+	# ls /usr/bin | grep zip
+	# ls /bin > dirList-bin.txt
+	# ls /usr/bin > dirList-usr-bin.txt
+	# ls /sbin > dirList-sbin.txt
+	# ls /usr/sbin > dirList-usr-sbin.txt
+	# ls dirList*.txt
+	# grep gzip dirList*.txt
+		dirList-bin.txt:gzip
+		dirList-usr-bin.txt:gzip
+	# grep -l gzip dirList*.txt
+		dirList-bin.txt
+		dirList-usr-bin.txt
+	# grep -L gzip dirList*.txt
+		dirList-sbin.txt
+		dirList-usr-sbin.txt
+  # grep -h '.zip' dirList*.txt
+  	funzip
+    gpg-zip
+    gunzip
+    gzip
+    unzip
+    unzipsfx
+    funzip
+    gpg-zip
+    gunzip
+    gzip
+    unzip
+    unzipsfx
+  # grep -h '^zip' dirList*.txt
+  	zip
+    zipcloak
+    zipgrep
+    zipinfo
+    zipnote
+    zipsplit
+    zip
+    zipcloak
+    zipgrep
+    zipinfo
+    zipnote
+    zipsplit
+  # grep -h '^zip$' dirList*.txt
+  	zip
+		zip
+  # grep -i '^..j.r$' /usr/share/dict/words
+  # grep -h '[bg]zip' dirList*.txt	
+  # grep -h '[^bg]zip' dirList*.txt
+  	funzip
+    gpg-zip
+    gunzip
+    unzip
+    unzipsfx
+    funzip
+    gpg-zip
+    gunzip
+    unzip
+    unzipsfx
+  # grep -h '^[ABCDEFGHIJKLMNOPQRSTUVWXZY]' dirList*.txt
+  # grep -h '^[A-Z]' dirList*.txt
+  # grep -h '^[A-Za-z0-9]' dirList*.txt
+  # grep -h '[A-Z]' dirList*.txt
+  # grep -h '[-AZ]' dirList*.txt
+  	匹配包含一个连字符，或一个大写字母“A”，或一个大写字母“Z”的文件名。
+  # ls /usr/sbin/[ABCDEFGHIJKLMNOPQRSTUVWXYZ]*
+  # ls /usr/sbin/[A-Z]*
+  	得不到正常结果，因为他是POSIX字符集操作
+  	aAbB...
+  	需要利用ls /usr/sbin/[[:upper:]]*
+  # echo $LANG
+  # ls /usr/sbin/[[:upper:]]*
+  # locale
+    查看本地所有的变量信息
+  # export LANG=POSIX
+  	注意这个改动使系统为它的字符集使用 U.S.英语（更准确地说，ASCII），所以要确认一下这 是否是你真正想要的效果。通过把这条语句添加到你的.bashrc 文件中，你可以使这个更改永久有效。export LANG=POSIX
+  # echo "AAA" | grep -E 'AAA|BBB'
+  # grep -Eh '^(bz|gz|zip)' dirList*.txt
+  # grep -Eh '^bz|gz|zip' dirList*.txt
+  # echo "(555) 123-4567" | grep -E '^\(?[0-9][0-9][0-9]\)? [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$'
+(555) 123-4567
+	#  echo "555 123-4567" | grep -E '^\(?[0-9][0-9][0-9]\)? [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]$'
+555 123-4567
+  # echo "This works." | grep -E '[[:upper:]][[:upper:][:lower:] ]*\.'
+		This works.
+  # echo "This Works." | grep -E '[[:upper:]][[:upper:][:lower:] ]*\.'
+		This Works. 
+  # echo "This that" | grep -E '^([[:alpha:]]+ ?)+$'
+		This that
+	# echo "a b c" | grep -E '^([[:alpha:]]+ ?)+$'
+		a b c	
+	# echo "(555) 123-4567" | grep -E '^\(?[0-9]{3}\)? [0-9]{3}-[0-9]{4}$'
+(555) 123-4567	
+  
+```
+
+grep选项
+
+| 选项 | 描述                                                         |
+| :--- | :----------------------------------------------------------- |
+| -i   | 忽略大小写。不会区分大小写字符。也可用--ignore-case 来指定。 |
+| -v   | 不匹配。通常，grep 程序会打印包含匹配项的文本行。这个选项导致 grep 程序只会打印不包含匹配项的文本行。也可用--invert-match 来指定。 |
+| -c   | 打印匹配的数量（或者是不匹配的数目，若指定了-v 选项），而不是文本行本身。 也可用--count 选项来指定。 |
+| -l   | 打印包含匹配项的文件名，而不是文本行本身，也可用--files-with-matches 选项来指定。 |
+| -L   | 相似于-l 选项，但是只是打印不包含匹配项的文件名。也可用--files-without-match 来指定。 |
+| -n   | 在每个匹配行之前打印出其位于文件中的相应行号。也可用--line-number 选项来指定。 |
+| -h   | 应用于多文件搜索，不输出文件名。也可用--no-filename 选项来指定。 |
+
+*POSIX 字符集*
+
+| 字符集     | 说明                                                         |
+| :--------- | :----------------------------------------------------------- |
+| [:alnum:]  | 字母数字字符。在 ASCII 中，等价于：[A-Za-z0-9]               |
+| [:word:]   | 与[:alnum:]相同, 但增加了下划线字符。                        |
+| [:alpha:]  | 字母字符。在 ASCII 中，等价于：[A-Za-z]                      |
+| [:blank:]  | 包含空格和 tab 字符。                                        |
+| [:cntrl:]  | ASCII 的控制码。包含了0到31，和127的 ASCII 字符。            |
+| [:digit:]  | 数字0到9                                                     |
+| [:graph:]  | 可视字符。在 ASCII 中，它包含33到126的字符。                 |
+| [:lower:]  | 小写字母。                                                   |
+| [:punct:]  | 标点符号字符。在 ASCII 中，等价于：[-!"#$%&'()*+,./:;<=>?@[\\\]_`{\|}~] |
+| [:print:]  | 可打印的字符。在[:graph:]中的所有字符，再加上空格字符。      |
+| [:space:]  | 空白字符，包括空格、tab、回车、换行、vertical tab 和 form feed.在 ASCII 中， 等价于：[ \t\r\n\v\f] |
+| [:upper:]  | 大写字母。                                                   |
+| [:xdigit:] | 用来表示十六进制数字的字符。在 ASCII 中，等价于：[0-9A-Fa-f] |
+
+{}*指定匹配的数目*
+
+| 限定符 | 意思                                                     |
+| :----- | :------------------------------------------------------- |
+| {n}    | 匹配前面的元素，如果它确切地出现了 n 次。                |
+| {n,m}  | 匹配前面的元素，如果它至少出现了 n 次，但是不多于 m 次。 |
+| {n,}   | 匹配前面的元素，如果它出现了 n 次或多于 n 次。           |
+| {,m}   | 匹配前面的元素，如果它出现的次数不多于 m 次。            |
 
 
 
